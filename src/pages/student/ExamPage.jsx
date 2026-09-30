@@ -21,6 +21,7 @@ const ExamPage = () => {
   const [submitting, setSubmitting] = useState(false);
   
   const timerRef = useRef(null);
+  const isActionRef = useRef(false);
 
   // Initialize Exam & Questions
   useEffect(() => {
@@ -76,11 +77,11 @@ const ExamPage = () => {
   // Anti-cheating (Tab switch & Blur detection)
   useEffect(() => {
     const handleVisibilityChange = () => {
-      if (document.hidden) setWarnings(w => w + 1);
+      if (document.hidden && !isActionRef.current) setWarnings(w => w + 1);
     };
     
     const handleBlur = () => {
-      setWarnings(w => w + 1);
+      if (!isActionRef.current) setWarnings(w => w + 1);
     };
 
     document.addEventListener("visibilitychange", handleVisibilityChange);
@@ -108,7 +109,10 @@ const ExamPage = () => {
     if (submitting) return;
     
     if (!isAuto) {
-      if (!window.confirm("Are you sure you want to submit the exam?")) return;
+      isActionRef.current = true; // Pause blur detection
+      const confirmed = window.confirm("Are you sure you want to submit the exam?");
+      isActionRef.current = false; // Resume if they cancel
+      if (!confirmed) return;
     } else {
       if (reason === 'cheating') {
         toast.error("Exam auto-submitted due to tab switching/cheating.");
@@ -117,6 +121,7 @@ const ExamPage = () => {
       }
     }
     
+    isActionRef.current = true; // Permanently pause blur detection while submitting
     setSubmitting(true);
     if (timerRef.current) clearInterval(timerRef.current);
     
