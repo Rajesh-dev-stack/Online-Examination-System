@@ -30,8 +30,11 @@ const CreateExam = () => {
 
   // AI Entry State
   const [aiState, setAiState] = useState({
-    topic: '', numQs: '5', difficulty: 'Medium', generatedQs: []
+    topic: '', numQs: '5', difficulty: 'Medium', marks: '1', generatedQs: []
   });
+
+  // Excel State
+  const [excelMarks, setExcelMarks] = useState('1');
 
   const handleDetailsChange = (e) => setExamDetails({ ...examDetails, [e.target.name]: e.target.value });
 
@@ -77,7 +80,8 @@ const CreateExam = () => {
     toast('AI is generating questions...');
     try {
       const generated = await generateQuestions(aiState.topic, parseInt(aiState.numQs), aiState.difficulty, examDetails.subject);
-      setAiState({ ...aiState, generatedQs: generated.map(q => ({ ...q, selected: true })) });
+      const customMarks = parseInt(aiState.marks) || 1;
+      setAiState({ ...aiState, generatedQs: generated.map(q => ({ ...q, selected: true, marks: customMarks })) });
       toast.success('Questions generated!');
     } catch (err) {
       toast.error(`AI Error: ${err.message}`);
@@ -101,8 +105,10 @@ const CreateExam = () => {
     if (!file) return;
     try {
       const parsedQs = await parseExcelQuestions(file);
-      setQuestions([...questions, ...parsedQs]);
-      toast.success(`${parsedQs.length} questions added from Excel`);
+      const customMarks = parseInt(excelMarks) || 1;
+      const parsedWithMarks = parsedQs.map(q => ({ ...q, marks: customMarks }));
+      setQuestions([...questions, ...parsedWithMarks]);
+      toast.success(`${parsedWithMarks.length} questions added from Excel`);
     } catch (err) {
       toast.error('Failed to parse Excel file');
     }
@@ -224,7 +230,7 @@ const CreateExam = () => {
               <div className="card">
                 <form onSubmit={handleAiGenerate}>
                   <div className="form-group"><label>Topic</label><input type="text" className="form-control" required value={aiState.topic} onChange={(e)=>setAiState({...aiState, topic: e.target.value})} placeholder="e.g. React, Software...." /></div>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid gap-2" style={{ gridTemplateColumns: '1fr 1fr 1fr' }}>
                     <div className="form-group">
                       <label>Number of Questions</label>
                       <input type="number" className="form-control" min="1" max="50" required value={aiState.numQs} onChange={(e)=>setAiState({...aiState, numQs: e.target.value})} />
@@ -234,6 +240,10 @@ const CreateExam = () => {
                       <select className="form-control" value={aiState.difficulty} onChange={(e)=>setAiState({...aiState, difficulty: e.target.value})}>
                         <option value="Easy">Easy</option><option value="Medium">Medium</option><option value="Hard">Hard</option>
                       </select>
+                    </div>
+                    <div className="form-group">
+                      <label>Marks Each</label>
+                      <input type="number" className="form-control" min="1" max="100" required value={aiState.marks} onChange={(e)=>setAiState({...aiState, marks: e.target.value})} />
                     </div>
                   </div>
                   <button type="submit" className="btn mt-3" style={{ backgroundColor: '#7c3aed', color: 'white', width: '100%' }} disabled={loading}>
@@ -270,6 +280,11 @@ const CreateExam = () => {
                   Download Template
                 </button>
                 
+                <div className="form-group mb-4 text-left" style={{ maxWidth: '200px', margin: '0 auto' }}>
+                  <label>Marks for Each Question</label>
+                  <input type="number" className="form-control" min="1" required value={excelMarks} onChange={(e) => setExcelMarks(e.target.value)} />
+                </div>
+
                 <div className="form-group">
                   <label style={{ display: 'block', padding: '30px', border: '2px dashed #d1d5db', borderRadius: '8px', cursor: 'pointer', backgroundColor: '#f9fafb' }}>
                     <br/>
