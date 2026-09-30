@@ -6,8 +6,9 @@ import { Eye, EyeOff } from 'lucide-react';
 
 const TeacherLogin = () => {
   const user = JSON.parse(sessionStorage.getItem('user'));
-  if (user && user.role === 'teacher') {
-    return <Navigate to="/teacher/dashboard" replace />;
+  if (user) {
+    if (user.role === 'teacher') return <Navigate to="/teacher/dashboard" replace />;
+    if (user.role === 'student') return <Navigate to="/student/dashboard" replace />;
   }
 
   const [isLogin, setIsLogin] = useState(true);
@@ -139,7 +140,7 @@ const TeacherLogin = () => {
           </button>
         </p>
         <div className="text-center mt-3">
-          <Link to="/" className="btn btn-outline" style={{ display: 'block', width: '100%', textDecoration: 'none' }}>
+          <Link to="/" replace className="btn btn-outline" style={{ display: 'block', width: '100%', textDecoration: 'none' }}>
             Back to Home
           </Link>
         </div>
