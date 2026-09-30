@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { getStudentSubmissions } from '../../firebase/dbFunctions';
 import toast from 'react-hot-toast';
 
@@ -39,6 +40,7 @@ const MyAssignments = () => {
                 <th style={{ padding: '12px' }}>Status</th>
                 <th style={{ padding: '12px' }}>Marks</th>
                 <th style={{ padding: '12px' }}>Feedback</th>
+                <th style={{ padding: '12px' }}>Action</th>
               </tr>
             </thead>
             <tbody>
@@ -47,15 +49,22 @@ const MyAssignments = () => {
                   <td style={{ padding: '12px' }}><strong>{sub.assignmentTitle}</strong></td>
                   <td style={{ padding: '12px' }}>{new Date(sub.submittedAt).toLocaleDateString()}</td>
                   <td style={{ padding: '12px' }}>
-                    <a href={sub.fileURL} target="_blank" rel="noreferrer" style={{ color: 'var(--primary)' }}>View File</a>
+                    {sub.fileURL ? <a href={sub.fileURL} target="_blank" rel="noreferrer" style={{ color: 'var(--primary)' }}>View File</a> : <span className="text-muted">N/A</span>}
                   </td>
                   <td style={{ padding: '12px' }}>
-                    <span className={`badge ${sub.status === 'graded' ? 'badge-active' : 'badge-upcoming'}`}>
-                      {sub.status}
+                    <span className={`badge ${sub.status === 'graded' ? 'badge-active' : (sub.status === 'resubmit' ? 'badge-warning' : 'badge-upcoming')}`}>
+                      {sub.status.toUpperCase()}
                     </span>
                   </td>
                   <td style={{ padding: '12px' }}>{sub.marks !== null ? sub.marks : '-'}</td>
                   <td style={{ padding: '12px' }}>{sub.feedback || '-'}</td>
+                  <td style={{ padding: '12px' }}>
+                    {sub.status === 'resubmit' && (
+                      <Link to="/student/assignments" className="btn btn-primary" style={{ padding: '4px 8px', fontSize: '0.8rem', textDecoration: 'none' }}>
+                        Resubmit Now
+                      </Link>
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>
