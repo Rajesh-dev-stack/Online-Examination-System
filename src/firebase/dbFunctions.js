@@ -258,13 +258,20 @@ export const deleteAssignment = async (assignmentId) => {
 // SUBMISSION FUNCTIONS
 // =====================
 
-export const submitAssignment = async (submissionData) => {
+export const submitAssignment = async (submissionData, existingId = null) => {
   try {
-    const docRef = await addDoc(collection(db, "submissions"), {
+    const dataWithTime = {
       ...submissionData,
       submittedAt: new Date().toISOString()
-    });
-    return { id: docRef.id, error: null };
+    };
+    
+    if (existingId) {
+      await updateDoc(doc(db, "submissions", existingId), dataWithTime);
+      return { id: existingId, error: null };
+    } else {
+      const docRef = await addDoc(collection(db, "submissions"), dataWithTime);
+      return { id: docRef.id, error: null };
+    }
   } catch (error) {
     return { id: null, error: error.message };
   }

@@ -41,7 +41,7 @@ const Assignments = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e, existingId = null) => {
     e.preventDefault();
     if (!file) { toast.error("Please select a file"); return; }
     
@@ -70,13 +70,17 @@ const Assignments = () => {
       feedback: ''
     };
     
-    const { error: dbError } = await submitAssignment(submissionData);
+    const { error: dbError } = await submitAssignment(submissionData, existingId);
     
     if (dbError) {
       toast.error(`Database error: ${dbError}`);
     } else {
-      toast.success('Assignment submitted successfully!');
-      setSubmissions([...submissions, { ...submissionData, id: 'temp' }]); // optimistic update
+      toast.success(existingId ? 'Assignment resubmitted successfully!' : 'Assignment submitted successfully!');
+      if (existingId) {
+        setSubmissions(submissions.map(s => s.id === existingId ? { ...s, ...submissionData } : s));
+      } else {
+        setSubmissions([...submissions, { ...submissionData, id: 'temp' }]); // optimistic update
+      }
       setSelectedAssignment(null);
       setFile(null);
     }
@@ -117,11 +121,11 @@ const Assignments = () => {
                 
                 <button 
                   className={`btn mt-3 ${isSubmitted ? 'btn-secondary' : 'btn-primary'}`}
-                  style={isSubmitted ? { backgroundColor: '#9ca3af', color: 'white' } : {}}
+                  style={isSubmitted && submission.status !== 'resubmit' ? { backgroundColor: '#9ca3af', color: 'white' } : {}}
                   onClick={() => setSelectedAssignment(a)}
                   disabled={isSubmitted && submission.status === 'graded'}
                 >
-                  {isSubmitted ? 'View Submission' : 'View & Submit'}
+                  {isSubmitted ? (submission.status === 'resubmit' ? 'View & Resubmit' : 'View Submission') : 'View & Submit'}
                 </button>
               </div>
             );
@@ -156,7 +160,8 @@ const Assignments = () => {
 
             {(() => {
               const sub = submissions.find(s => s.assignmentId === selectedAssignment.id);
-              if (sub) {
+              
+              if (sub && sub.status !== 'resubmit') {
                 return (
                   <div style={{ backgroundColor: '#dcfce7', padding: '15px', borderRadius: '6px' }}>
                     <h4 style={{ color: '#166534' }}>Already Submitted on {new Date(sub.submittedAt).toLocaleDateString()}</h4>
@@ -172,16 +177,22 @@ const Assignments = () => {
               }
               
               return (
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={(e) => handleSubmit(e, sub?.id)}>
+                  {sub?.status === 'resubmit' && (
+                    <div style={{ backgroundColor: '#fef3c7', padding: '15px', borderRadius: '6px', marginBottom: '15px' }}>
+                      <h4 style={{ color: '#b45309', margin: '0 0 10px 0' }}>Teacher Requested Resubmission</h4>
+                      <p style={{ margin: 0, color: '#92400e' }}><strong>Feedback:</strong> {sub.feedback}</p>
+                    </div>
+                  )}
                   <div className="form-group">
-                    <label style={{ display: 'block', padding: '30px', border: '2px dashed #d1d5db', borderRadius: '8px', cursor: 'pointer', textAlign: 'center' }}>
+                    <label style={{ display: 'block', padding: '30px', border: '2px dashed #d1d5db', borderRadius: '8px', cursor: 'pointer', textAlign: 'center', backgroundColor: '#f9fafb' }}>
                       <br/>
                       {file ? file.name : 'Click to select PDF, JPEG, or PNG (Max 10MB)'}
                       <input type="file" accept=".pdf, .jpeg, .jpg, .png" style={{ display: 'none' }} onChange={handleFileChange} />
                     </label>
                   </div>
                   <button type="submit" className="btn btn-success" style={{ width: '100%' }} disabled={submitting}>
-                    {submitting ? 'Uploading...' : 'Submit Assignment'}
+                    {submitting ? 'Uploading...' : (sub?.status === 'resubmit' ? 'Resubmit Assignment' : 'Submit Assignment')}
                   </button>
                 </form>
               );

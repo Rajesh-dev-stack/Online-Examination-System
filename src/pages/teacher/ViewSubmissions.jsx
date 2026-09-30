@@ -79,6 +79,26 @@ const ViewSubmissions = () => {
     }
   };
 
+  const requestResubmit = async (subId) => {
+    const data = gradeData[subId];
+    if (!window.confirm('Are you sure you want to request a resubmission? The previous file will be marked invalid.')) return;
+    
+    const feedbackMsg = data.feedback || 'Teacher requested resubmission. Please upload a valid document.';
+    const { error } = await gradeSubmission(subId, {
+      marks: null,
+      feedback: feedbackMsg,
+      status: 'resubmit',
+      fileURL: null // conceptually deletes the old file
+    });
+    
+    if (error) {
+      toast.error('Failed to request resubmission');
+    } else {
+      toast.success('Resubmission requested!');
+      setSubmissions(submissions.map(s => s.id === subId ? { ...s, status: 'resubmit', marks: null, feedback: feedbackMsg, fileURL: null } : s));
+    }
+  };
+
   const gradedCount = submissions.filter(s => s.status === 'graded').length;
   const avgMarks = gradedCount > 0 ? (submissions.reduce((acc, s) => acc + (s.marks || 0), 0) / gradedCount).toFixed(2) : 0;
 
@@ -125,9 +145,13 @@ const ViewSubmissions = () => {
                 </div>
                 
                 <div className="mb-3">
-                  <a href={sub.fileURL} target="_blank" rel="noreferrer" className="btn btn-secondary" style={{ backgroundColor: '#4b5563', color: 'white', textDecoration: 'none' }}>
-                    View Uploaded File
-                  </a>
+                  {sub.fileURL ? (
+                    <a href={sub.fileURL} target="_blank" rel="noreferrer" className="btn btn-secondary" style={{ backgroundColor: '#4b5563', color: 'white', textDecoration: 'none' }}>
+                      View Uploaded File
+                    </a>
+                  ) : (
+                    <span className="text-muted">No valid file uploaded. (Resubmission requested)</span>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-2 gap-3 p-3" style={{ backgroundColor: '#f9fafb', borderRadius: '6px' }}>
@@ -139,8 +163,9 @@ const ViewSubmissions = () => {
                     <label>Feedback</label>
                     <input type="text" className="form-control" placeholder="Optional feedback..." value={gradeData[sub.id]?.feedback || ''} onChange={(e) => handleGradeChange(sub.id, 'feedback', e.target.value)} />
                   </div>
-                  <div style={{ gridColumn: 'span 2' }}>
+                  <div style={{ gridColumn: 'span 2', display: 'flex', gap: '10px' }}>
                     <button className="btn btn-success" onClick={() => saveGrade(sub.id)}>Save Grade</button>
+                    <button className="btn btn-warning" onClick={() => requestResubmit(sub.id)} style={{ color: 'white', backgroundColor: '#eab308' }}>Request Resubmit</button>
                   </div>
                 </div>
               </div>
