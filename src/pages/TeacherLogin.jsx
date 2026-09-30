@@ -139,7 +139,9 @@ const TeacherLogin = () => {
           </button>
         </p>
         <div className="text-center mt-3">
-          <Link to="/">Back to Home</Link>
+          <Link to="/" className="btn btn-outline" style={{ display: 'block', width: '100%', textDecoration: 'none' }}>
+            Back to Home
+          </Link>
         </div>
       </div>
     </div>
