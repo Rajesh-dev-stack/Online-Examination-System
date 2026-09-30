@@ -61,16 +61,28 @@ export const getTeacherExams = async (teacherId) => {
   }
 };
 
-export const getAvailableExamsForStudents = async (course, section) => {
+export const getAvailableExamsForStudents = async (course, section, studentId) => {
   try {
+    // 1. Fetch all active exams
     const q = query(collection(db, "exams"), where("status", "==", "active"));
     const querySnapshot = await getDocs(q);
+    
+    // 2. Fetch student's past results to know which exams they already took
+    let attemptedExamIds = new Set();
+    if (studentId) {
+      const resultsQ = query(collection(db, "results"), where("studentId", "==", studentId));
+      const resultsSnap = await getDocs(resultsQ);
+      resultsSnap.forEach(doc => attemptedExamIds.add(doc.data().examId));
+    }
+
     const exams = [];
     querySnapshot.forEach((doc) => {
       const data = doc.data();
       // Filter by course and section if they are set on the exam
       if (data.targetCourse && data.targetCourse !== course) return;
       if (data.targetSection && data.targetSection !== 'All' && data.targetSection !== section) return;
+      // Filter out already attempted exams
+      if (attemptedExamIds.has(doc.id)) return;
       
       exams.push({ id: doc.id, ...data });
     });

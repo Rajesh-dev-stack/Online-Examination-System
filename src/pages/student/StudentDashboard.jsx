@@ -14,7 +14,7 @@ const StudentDashboard = () => {
     const fetchData = async () => {
       const [resultsRes, examsRes, asgRes, subRes] = await Promise.all([
         getStudentResults(user.uid),
-        getAvailableExamsForStudents(user.course, user.section),
+        getAvailableExamsForStudents(user.course, user.section, user.uid),
         getStudentAssignments(user.course, user.section),
         getStudentSubmissions(user.uid)
       ]);

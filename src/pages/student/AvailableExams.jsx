@@ -11,7 +11,7 @@ const AvailableExams = () => {
   useEffect(() => {
     const fetchExams = async () => {
       const [examsRes, resultsRes] = await Promise.all([
-        getAvailableExamsForStudents(user.course, user.section),
+        getAvailableExamsForStudents(user.course, user.section, user.uid),
         getStudentResults(user.uid)
       ]);
 
