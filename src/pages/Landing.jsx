@@ -19,7 +19,7 @@ const Landing = () => {
       {/* Main Content */}
       <main style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '20px' }}>
         <div className="card" style={{ maxWidth: '600px', width: '100%', textAlign: 'center' }}>
-          <h2 className="mb-4">Welcome to ExamPortal</h2>
+          <h3 className="mb-4">Welcome</h3>
           <p className="mb-4 text-muted">Please select your role to continue.</p>
           
           <div className="grid grid-cols-2 gap-3">
