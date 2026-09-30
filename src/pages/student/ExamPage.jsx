@@ -79,7 +79,7 @@ const ExamPage = () => {
       if (document.hidden) {
         setWarnings(w => {
           const newW = w + 1;
-          alert(`⚠️ Warning! Do not switch tabs! (Warning ${newW})`);
+          alert(`Warning! Do not switch tabs! (Warning ${newW})`);
           return newW;
         });
       }
@@ -94,7 +94,7 @@ const ExamPage = () => {
     if (!isAuto) {
       if (!window.confirm("Are you sure you want to submit the exam?")) return;
     } else {
-      toast("Time Up! Exam Submitted.", { icon: '⏳' });
+      toast("Time Up! Exam Submitted.");
     }
     
     setSubmitting(true);
@@ -108,7 +108,10 @@ const ExamPage = () => {
     questions.forEach(q => {
       totalMarks += q.marks;
       if (answers[q.id]) {
-        if (answers[q.id] === q.correctAnswer) {
+        const studentAns = answers[q.id].toString().trim().toUpperCase();
+        const correctAns = q.correctAnswer.toString().trim().toUpperCase();
+        
+        if (studentAns === correctAns) {
           obtainedMarks += q.marks;
           correctAnswersCount++;
         } else {
@@ -118,7 +121,14 @@ const ExamPage = () => {
     });
     
     const percentage = totalMarks > 0 ? ((obtainedMarks / totalMarks) * 100).toFixed(2) : 0;
-    const isPass = obtainedMarks >= exam.passingMarks;
+    
+    // Fallback: If teacher entered 50 as passing marks but the exam only has 5 total marks, they meant 50%.
+    let isPass = false;
+    if (exam.passingMarks > totalMarks && totalMarks > 0) {
+      isPass = parseFloat(percentage) >= exam.passingMarks;
+    } else {
+      isPass = obtainedMarks >= exam.passingMarks;
+    }
     
     // Time taken calculation
     const durationSecs = exam.duration * 60;

@@ -54,10 +54,13 @@ const ManageExams = () => {
     <div>
       <h2 className="mb-4">Manage Exams</h2>
       
-      <div className="card">
-        {exams.length === 0 ? (
-          <p>No exams created yet.</p>
-        ) : (
+      {exams.length === 0 ? (
+        <div className="card text-center" style={{ padding: '40px' }}>
+          <h3 className="text-muted" style={{ margin: 0 }}>No exams created yet.</h3>
+          <p className="text-muted mt-2">Go to "Create Exam" to set up your first examination.</p>
+        </div>
+      ) : (
+        <div className="card">
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
               <thead>
@@ -112,8 +115,8 @@ const ManageExams = () => {
               </tbody>
             </table>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };

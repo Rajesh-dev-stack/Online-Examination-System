@@ -44,11 +44,14 @@ const MyResults = () => {
       <h2 className="mb-4">My Results</h2>
 
       {!selectedResult ? (
-        <div className="card">
+        <div>
           {results.length === 0 ? (
-            <p>You have not attempted any exams yet.</p>
+            <div className="card text-center" style={{ padding: '40px' }}>
+              <h3 className="text-muted" style={{ margin: 0 }}>No results available.</h3>
+              <p className="text-muted mt-2">You have not attempted any exams yet.</p>
+            </div>
           ) : (
-            <div style={{ overflowX: 'auto' }}>
+            <div className="card" style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                 <thead>
                   <tr style={{ borderBottom: '2px solid #e5e7eb' }}>
@@ -125,8 +128,8 @@ const MyResults = () => {
                           border: '1px solid #e5e7eb'
                         }}>
                           {opt}) {q[`option${opt}`]}
-                          {q.correctAnswer === opt && <span style={{ float: 'right' }}>✅</span>}
-                          {studentAnswer === opt && q.correctAnswer !== opt && <span style={{ float: 'right' }}>❌</span>}
+                          {q.correctAnswer === opt && <span style={{ float: 'right', fontWeight: 'bold', color: '#166534' }}>(Correct)</span>}
+                          {studentAnswer === opt && q.correctAnswer !== opt && <span style={{ float: 'right', fontWeight: 'bold', color: '#991b1b' }}>(Your Answer)</span>}
                         </div>
                       ))}
                     </div>

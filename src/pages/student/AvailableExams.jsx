@@ -42,8 +42,9 @@ const AvailableExams = () => {
       <h2 className="mb-4">Available Exams</h2>
       
       {exams.length === 0 ? (
-        <div className="card">
-          <p>No active exams available at the moment.</p>
+        <div className="card text-center" style={{ padding: '40px' }}>
+          <h3 className="text-muted" style={{ margin: 0 }}>No active exams available at the moment.</h3>
+          <p className="text-muted mt-2">Check back later for new exams from your teachers.</p>
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-4">

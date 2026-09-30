@@ -1,5 +1,8 @@
+import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from './firebase/firebaseClient';
 
 // Auth Pages
 import Landing from './pages/Landing';
@@ -16,6 +19,9 @@ import CreateExam from './pages/teacher/CreateExam';
 import ManageExams from './pages/teacher/ManageExams';
 import ViewResults from './pages/teacher/ViewResults';
 import TeacherProfile from './pages/teacher/TeacherProfile';
+import CreateAssignment from './pages/teacher/CreateAssignment';
+import ManageAssignments from './pages/teacher/ManageAssignments';
+import ViewSubmissions from './pages/teacher/ViewSubmissions';
 
 // Student Pages
 import StudentDashboard from './pages/student/StudentDashboard';
@@ -24,8 +30,21 @@ import ExamPage from './pages/student/ExamPage';
 import ResultPage from './pages/student/ResultPage';
 import MyResults from './pages/student/MyResults';
 import StudentProfile from './pages/student/StudentProfile';
+import Assignments from './pages/student/Assignments';
+import MyAssignments from './pages/student/MyAssignments';
 
 function App() {
+  // Global listener to ensure Firebase session stays synced with localStorage
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        // If Firebase says we are logged out (session expired or manual logout), clear local storage
+        localStorage.removeItem('user');
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
   return (
     <Router>
       <Toaster position="top-right" />
@@ -41,6 +60,9 @@ function App() {
           <Route path="create-exam" element={<CreateExam />} />
           <Route path="manage-exams" element={<ManageExams />} />
           <Route path="results" element={<ViewResults />} />
+          <Route path="create-assignment" element={<CreateAssignment />} />
+          <Route path="manage-assignments" element={<ManageAssignments />} />
+          <Route path="view-submissions" element={<ViewSubmissions />} />
           <Route path="profile" element={<TeacherProfile />} />
         </Route>
 
@@ -49,6 +71,8 @@ function App() {
           <Route path="dashboard" element={<StudentDashboard />} />
           <Route path="available-exams" element={<AvailableExams />} />
           <Route path="my-results" element={<MyResults />} />
+          <Route path="assignments" element={<Assignments />} />
+          <Route path="my-assignments" element={<MyAssignments />} />
           <Route path="profile" element={<StudentProfile />} />
         </Route>
 

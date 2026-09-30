@@ -169,3 +169,122 @@ export const getResultsForExam = async (examId) => {
     return { results: [], error: error.message };
   }
 };
+
+// =====================
+// ASSIGNMENT FUNCTIONS
+// =====================
+
+export const createAssignment = async (assignmentData) => {
+  try {
+    const docRef = await addDoc(collection(db, "assignments"), {
+      ...assignmentData,
+      createdAt: new Date().toISOString()
+    });
+    return { id: docRef.id, error: null };
+  } catch (error) {
+    return { id: null, error: error.message };
+  }
+};
+
+export const getTeacherAssignments = async (teacherId) => {
+  try {
+    const q = query(collection(db, "assignments"), where("teacherId", "==", teacherId));
+    const querySnapshot = await getDocs(q);
+    const assignments = [];
+    querySnapshot.forEach((doc) => {
+      assignments.push({ id: doc.id, ...doc.data() });
+    });
+    return { assignments, error: null };
+  } catch (error) {
+    return { assignments: [], error: error.message };
+  }
+};
+
+export const getStudentAssignments = async () => {
+  try {
+    // Basic implementation: grab all active assignments. 
+    // Usually would filter by student's course/semester if needed.
+    const q = query(collection(db, "assignments"), where("status", "==", "active"));
+    const querySnapshot = await getDocs(q);
+    const assignments = [];
+    querySnapshot.forEach((doc) => {
+      assignments.push({ id: doc.id, ...doc.data() });
+    });
+    return { assignments, error: null };
+  } catch (error) {
+    return { assignments: [], error: error.message };
+  }
+};
+
+export const updateAssignmentStatus = async (assignmentId, newStatus) => {
+  try {
+    const ref = doc(db, "assignments", assignmentId);
+    await updateDoc(ref, { status: newStatus });
+    return { error: null };
+  } catch (error) {
+    return { error: error.message };
+  }
+};
+
+export const deleteAssignment = async (assignmentId) => {
+  try {
+    await deleteDoc(doc(db, "assignments", assignmentId));
+    return { error: null };
+  } catch (error) {
+    return { error: error.message };
+  }
+};
+
+// =====================
+// SUBMISSION FUNCTIONS
+// =====================
+
+export const submitAssignment = async (submissionData) => {
+  try {
+    const docRef = await addDoc(collection(db, "submissions"), {
+      ...submissionData,
+      submittedAt: new Date().toISOString()
+    });
+    return { id: docRef.id, error: null };
+  } catch (error) {
+    return { id: null, error: error.message };
+  }
+};
+
+export const getAssignmentSubmissions = async (assignmentId) => {
+  try {
+    const q = query(collection(db, "submissions"), where("assignmentId", "==", assignmentId));
+    const querySnapshot = await getDocs(q);
+    const submissions = [];
+    querySnapshot.forEach((doc) => {
+      submissions.push({ id: doc.id, ...doc.data() });
+    });
+    return { submissions, error: null };
+  } catch (error) {
+    return { submissions: [], error: error.message };
+  }
+};
+
+export const getStudentSubmissions = async (studentId) => {
+  try {
+    const q = query(collection(db, "submissions"), where("studentId", "==", studentId));
+    const querySnapshot = await getDocs(q);
+    const submissions = [];
+    querySnapshot.forEach((doc) => {
+      submissions.push({ id: doc.id, ...doc.data() });
+    });
+    return { submissions, error: null };
+  } catch (error) {
+    return { submissions: [], error: error.message };
+  }
+};
+
+export const gradeSubmission = async (submissionId, gradeData) => {
+  try {
+    const ref = doc(db, "submissions", submissionId);
+    await updateDoc(ref, gradeData);
+    return { error: null };
+  } catch (error) {
+    return { error: error.message };
+  }
+};

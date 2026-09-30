@@ -34,7 +34,7 @@ const ResultPage = () => {
       <div className="card text-center" style={{ maxWidth: '600px', width: '100%', padding: '40px 20px' }}>
         
         <h1 style={{ color: isPass ? 'var(--success)' : 'var(--danger)', fontSize: '3rem', marginBottom: '10px' }}>
-          {isPass ? '✅ PASS' : '❌ FAIL'}
+          {isPass ? 'PASS' : 'FAIL'}
         </h1>
         
         <h2 className="mb-4">{result.examTitle}</h2>

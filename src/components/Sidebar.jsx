@@ -10,13 +10,18 @@ const Sidebar = ({ role }) => {
     { name: 'Create Exam', path: '/teacher/create-exam', icon: <FileText size={20} /> },
     { name: 'Manage Exams', path: '/teacher/manage-exams', icon: <ClipboardList size={20} /> },
     { name: 'View Results', path: '/teacher/results', icon: <BarChart2 size={20} /> },
+    { name: 'Create Assignment', path: '/teacher/create-assignment', icon: <FileText size={20} /> },
+    { name: 'Manage Assignments', path: '/teacher/manage-assignments', icon: <Archive size={20} /> },
+    { name: 'View Submissions', path: '/teacher/view-submissions', icon: <ClipboardList size={20} /> },
     { name: 'Profile', path: '/teacher/profile', icon: <User size={20} /> },
   ];
 
   const studentLinks = [
     { name: 'Dashboard', path: '/student/dashboard', icon: <Home size={20} /> },
     { name: 'Available Exams', path: '/student/available-exams', icon: <BookOpen size={20} /> },
-    { name: 'My Results', path: '/student/my-results', icon: <Archive size={20} /> },
+    { name: 'My Results', path: '/student/my-results', icon: <BarChart2 size={20} /> },
+    { name: 'Assignments', path: '/student/assignments', icon: <FileText size={20} /> },
+    { name: 'My Submissions', path: '/student/my-assignments', icon: <Archive size={20} /> },
     { name: 'Profile', path: '/student/profile', icon: <User size={20} /> },
   ];
 
