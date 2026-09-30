@@ -11,7 +11,7 @@ const CreateAssignment = () => {
   
   const [step, setStep] = useState(1);
   const [assignmentDetails, setAssignmentDetails] = useState({
-    title: '', subject: '', description: '', dueDate: '', totalMarks: ''
+    title: '', subject: '', description: '', dueDate: '', totalMarks: '', targetCourse: '', targetSection: ''
   });
 
   const [questions, setQuestions] = useState([]);
@@ -123,6 +123,29 @@ const CreateAssignment = () => {
             <div className="grid grid-cols-2 gap-3">
               <div className="form-group"><label>Assignment Title</label><input type="text" name="title" className="form-control" required onChange={handleDetailsChange} /></div>
               <div className="form-group"><label>Subject</label><input type="text" name="subject" className="form-control" required onChange={handleDetailsChange} /></div>
+              
+              <div className="form-group"><label>Course</label>
+                <select name="targetCourse" className="form-control" required onChange={handleDetailsChange}>
+                  <option value="">Select Course</option>
+                  <option value="BCA">BCA</option>
+                  <option value="MCA">MCA</option>
+                  <option value="BSc">BSc</option>
+                  <option value="BA">BA</option>
+                  <option value="BCom">BCom</option>
+                </select>
+              </div>
+              
+              <div className="form-group"><label>Section</label>
+                <select name="targetSection" className="form-control" required onChange={handleDetailsChange}>
+                  <option value="">Select Section</option>
+                  <option value="All">All Sections</option>
+                  <option value="A">A</option>
+                  <option value="B">B</option>
+                  <option value="C">C</option>
+                  <option value="D">D</option>
+                </select>
+              </div>
+
               <div className="form-group"><label>Due Date & Time</label><input type="datetime-local" name="dueDate" className="form-control" required onChange={handleDetailsChange} /></div>
             </div>
             <div className="form-group mt-3"><label>Description / Instructions</label><textarea name="description" className="form-control" rows="4" required onChange={handleDetailsChange}></textarea></div>

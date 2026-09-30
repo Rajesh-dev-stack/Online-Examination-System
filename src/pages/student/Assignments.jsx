@@ -18,7 +18,7 @@ const Assignments = () => {
   useEffect(() => {
     const fetchData = async () => {
       const [assRes, subRes] = await Promise.all([
-        getStudentAssignments(),
+        getStudentAssignments(user.course, user.section),
         getStudentSubmissions(user.uid)
       ]);
       

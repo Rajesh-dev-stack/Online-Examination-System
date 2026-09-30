@@ -52,6 +52,7 @@ const ManageAssignments = () => {
             <thead>
               <tr style={{ borderBottom: '2px solid #e5e7eb' }}>
                 <th style={{ padding: '12px' }}>Title</th>
+                <th style={{ padding: '12px' }}>Target Batch</th>
                 <th style={{ padding: '12px' }}>Due Date</th>
                 <th style={{ padding: '12px' }}>Total Marks</th>
                 <th style={{ padding: '12px' }}>Status</th>
@@ -62,6 +63,7 @@ const ManageAssignments = () => {
               {assignments.map(a => (
                 <tr key={a.id} style={{ borderBottom: '1px solid #e5e7eb' }}>
                   <td style={{ padding: '12px' }}><strong>{a.title}</strong><br/><small>{a.subject}</small></td>
+                  <td style={{ padding: '12px' }}>{a.targetCourse ? `${a.targetCourse} (${a.targetSection})` : 'All'}</td>
                   <td style={{ padding: '12px' }}>{new Date(a.dueDate).toLocaleString()}</td>
                   <td style={{ padding: '12px' }}>{a.totalMarks}</td>
                   <td style={{ padding: '12px' }}>

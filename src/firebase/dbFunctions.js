@@ -61,13 +61,18 @@ export const getTeacherExams = async (teacherId) => {
   }
 };
 
-export const getAvailableExamsForStudents = async () => {
+export const getAvailableExamsForStudents = async (course, section) => {
   try {
     const q = query(collection(db, "exams"), where("status", "==", "active"));
     const querySnapshot = await getDocs(q);
     const exams = [];
     querySnapshot.forEach((doc) => {
-      exams.push({ id: doc.id, ...doc.data() });
+      const data = doc.data();
+      // Filter by course and section if they are set on the exam
+      if (data.targetCourse && data.targetCourse !== course) return;
+      if (data.targetSection && data.targetSection !== 'All' && data.targetSection !== section) return;
+      
+      exams.push({ id: doc.id, ...data });
     });
     return { exams, error: null };
   } catch (error) {
@@ -200,15 +205,17 @@ export const getTeacherAssignments = async (teacherId) => {
   }
 };
 
-export const getStudentAssignments = async () => {
+export const getStudentAssignments = async (course, section) => {
   try {
-    // Basic implementation: grab all active assignments. 
-    // Usually would filter by student's course/semester if needed.
     const q = query(collection(db, "assignments"), where("status", "==", "active"));
     const querySnapshot = await getDocs(q);
     const assignments = [];
     querySnapshot.forEach((doc) => {
-      assignments.push({ id: doc.id, ...doc.data() });
+      const data = doc.data();
+      if (data.targetCourse && data.targetCourse !== course) return;
+      if (data.targetSection && data.targetSection !== 'All' && data.targetSection !== section) return;
+      
+      assignments.push({ id: doc.id, ...data });
     });
     return { assignments, error: null };
   } catch (error) {

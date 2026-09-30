@@ -14,7 +14,8 @@ const StudentLogin = () => {
     fullName: '',
     rollNumber: '',
     course: '',
-    semester: ''
+    semester: '',
+    section: ''
   });
 
   const handleChange = (e) => {
@@ -44,7 +45,8 @@ const StudentLogin = () => {
         role: 'student',
         rollNumber: formData.rollNumber,
         course: formData.course,
-        semester: formData.semester
+        semester: formData.semester,
+        section: formData.section
       };
       const { user, error } = await registerUser(formData.email, formData.password, userDataToSave);
       if (error) {
@@ -88,6 +90,16 @@ const StudentLogin = () => {
               <div className="form-group">
                 <label>Semester</label>
                 <input type="number" name="semester" className="form-control" min="1" max="8" required onChange={handleChange} />
+              </div>
+              <div className="form-group">
+                <label>Section</label>
+                <select name="section" className="form-control" required onChange={handleChange}>
+                  <option value="">Select Section</option>
+                  <option value="A">A</option>
+                  <option value="B">B</option>
+                  <option value="C">C</option>
+                  <option value="D">D</option>
+                </select>
               </div>
             </>
           )}

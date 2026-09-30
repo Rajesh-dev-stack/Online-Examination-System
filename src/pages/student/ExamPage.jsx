@@ -59,7 +59,7 @@ const ExamPage = () => {
         setTimeLeft(tl);
         if (tl <= 0) {
           clearInterval(timerRef.current);
-          handleAutoSubmit();
+          handleSubmit(true);
         }
       }, 1000);
       
@@ -73,28 +73,48 @@ const ExamPage = () => {
     };
   }, [examId, navigate]);
 
-  // Anti-cheating (Tab switch detection)
+  // Anti-cheating (Tab switch & Blur detection)
   useEffect(() => {
     const handleVisibilityChange = () => {
-      if (document.hidden) {
-        setWarnings(w => {
-          const newW = w + 1;
-          alert(`Warning! Do not switch tabs! (Warning ${newW})`);
-          return newW;
-        });
-      }
+      if (document.hidden) setWarnings(w => w + 1);
     };
+    
+    const handleBlur = () => {
+      setWarnings(w => w + 1);
+    };
+
     document.addEventListener("visibilitychange", handleVisibilityChange);
-    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("blur", handleBlur);
+    
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("blur", handleBlur);
+    };
   }, []);
 
-  const handleSubmit = async (isAuto = false) => {
+  // Handle warnings trigger
+  useEffect(() => {
+    if (warnings > 0) {
+      if (warnings >= 2) {
+        alert("Maximum warnings exceeded! Your exam will now be automatically submitted.");
+        handleSubmit(true, 'cheating');
+      } else {
+        alert(`Warning ${warnings}/2: Do not switch tabs or leave this window! Your exam will be auto-submitted after 2 warnings.`);
+      }
+    }
+  }, [warnings]);
+
+  const handleSubmit = async (isAuto = false, reason = 'time') => {
     if (submitting) return;
     
     if (!isAuto) {
       if (!window.confirm("Are you sure you want to submit the exam?")) return;
     } else {
-      toast("Time Up! Exam Submitted.");
+      if (reason === 'cheating') {
+        toast.error("Exam auto-submitted due to tab switching/cheating.");
+      } else {
+        toast("Time Up! Exam Submitted.");
+      }
     }
     
     setSubmitting(true);
@@ -184,7 +204,13 @@ const ExamPage = () => {
   if (loading) return <div style={{ display: 'flex', height: '100vh', justifyContent: 'center', alignItems: 'center' }}><h2>Loading Exam...</h2></div>;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', backgroundColor: '#f3f4f6' }}>
+    <div 
+      style={{ display: 'flex', flexDirection: 'column', height: '100vh', backgroundColor: '#f3f4f6', userSelect: 'none' }}
+      onCopy={(e) => { e.preventDefault(); toast.error('Copying is disabled!'); }}
+      onCut={(e) => { e.preventDefault(); toast.error('Cutting is disabled!'); }}
+      onPaste={(e) => { e.preventDefault(); toast.error('Pasting is disabled!'); }}
+      onContextMenu={(e) => { e.preventDefault(); toast.error('Right-click is disabled!'); }}
+    >
       {/* Header */}
       <header style={{ backgroundColor: 'var(--primary)', color: 'white', padding: '15px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
         <h2 style={{ margin: 0, color: 'white' }}>{exam.title}</h2>

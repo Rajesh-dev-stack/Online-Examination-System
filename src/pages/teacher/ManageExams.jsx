@@ -67,6 +67,7 @@ const ManageExams = () => {
                 <tr style={{ borderBottom: '2px solid #e5e7eb' }}>
                   <th style={{ padding: '12px' }}>Title</th>
                   <th style={{ padding: '12px' }}>Subject</th>
+                  <th style={{ padding: '12px' }}>Target Batch</th>
                   <th style={{ padding: '12px' }}>Duration</th>
                   <th style={{ padding: '12px' }}>Status</th>
                   <th style={{ padding: '12px' }}>Actions</th>
@@ -77,6 +78,7 @@ const ManageExams = () => {
                   <tr key={exam.id} style={{ borderBottom: '1px solid #e5e7eb' }}>
                     <td style={{ padding: '12px' }}><strong>{exam.title}</strong><br/><small>{new Date(exam.startTime).toLocaleString()}</small></td>
                     <td style={{ padding: '12px' }}>{exam.subject}</td>
+                    <td style={{ padding: '12px' }}>{exam.targetCourse ? `${exam.targetCourse} (${exam.targetSection})` : 'All'}</td>
                     <td style={{ padding: '12px' }}>{exam.duration} mins</td>
                     <td style={{ padding: '12px' }}>
                       <span className={`badge badge-${exam.status}`}>

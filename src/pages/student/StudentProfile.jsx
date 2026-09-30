@@ -43,6 +43,10 @@ const StudentProfile = () => {
             <label>Semester</label>
             <input type="text" className="form-control" value={user.semester} disabled />
           </div>
+          <div className="form-group">
+            <label>Section</label>
+            <input type="text" className="form-control" value={user.section || 'N/A'} disabled />
+          </div>
         </div>
         
         <p className="text-muted mt-3" style={{ fontSize: '0.9rem' }}>
