@@ -94,13 +94,13 @@ const ExamPage = () => {
 
   // Handle warnings trigger
   useEffect(() => {
-    if (warnings > 0) {
-      if (warnings >= 2) {
-        alert("Maximum warnings exceeded! Your exam will now be automatically submitted.");
-        handleSubmit(true, 'cheating');
-      } else {
-        alert(`Warning ${warnings}/2: Do not switch tabs or leave this window! Your exam will be auto-submitted after 2 warnings.`);
-      }
+    if (warnings === 1) {
+      alert("FIRST WARNING: Do not switch tabs or leave this window! Your exam will be auto-submitted if you continue cheating.");
+    } else if (warnings === 2) {
+      alert("FINAL WARNING: If you switch tabs or leave this window one more time, your exam will be automatically submitted!");
+    } else if (warnings >= 3) {
+      alert("Maximum warnings exceeded! Your exam will now be automatically submitted.");
+      handleSubmit(true, 'cheating');
     }
   }, [warnings]);
 
