@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useNavigationType } from 'react-router-dom';
 import { loginUser, registerUser } from '../firebase/authFunctions';
 import toast from 'react-hot-toast';
 import { Eye, EyeOff } from 'lucide-react';
@@ -9,13 +9,14 @@ const StudentLogin = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const navType = useNavigationType();
 
   useEffect(() => {
     const user = JSON.parse(sessionStorage.getItem('user'));
-    if (user && user.role === 'student') {
+    if (user && user.role === 'student' && navType !== 'POP') {
       navigate('/student/dashboard', { replace: true });
     }
-  }, [navigate]);
+  }, [navigate, navType]);
 
   const [formData, setFormData] = useState({
     email: '',

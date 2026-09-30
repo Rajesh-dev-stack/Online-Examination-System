@@ -1,16 +1,17 @@
 import { useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useNavigationType } from 'react-router-dom';
 
 const Landing = () => {
   const navigate = useNavigate();
+  const navType = useNavigationType();
 
   useEffect(() => {
     const user = JSON.parse(sessionStorage.getItem('user'));
-    if (user) {
+    if (user && navType !== 'POP') {
       if (user.role === 'teacher') navigate('/teacher/dashboard', { replace: true });
       if (user.role === 'student') navigate('/student/dashboard', { replace: true });
     }
-  }, [navigate]);
+  }, [navigate, navType]);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
@@ -27,10 +28,10 @@ const Landing = () => {
           <p className="mb-4 text-muted">Please select your role to continue.</p>
           
           <div className="grid grid-cols-2 gap-3">
-            <Link to="/student-login" className="btn btn-primary" style={{ padding: '20px', fontSize: '1.2rem' }}>
+            <Link to="/student-login" replace className="btn btn-primary" style={{ padding: '20px', fontSize: '1.2rem' }}>
               Login as Student
             </Link>
-            <Link to="/teacher-login" className="btn btn-success" style={{ padding: '20px', fontSize: '1.2rem' }}>
+            <Link to="/teacher-login" replace className="btn btn-success" style={{ padding: '20px', fontSize: '1.2rem' }}>
               Login as Teacher
             </Link>
           </div>
