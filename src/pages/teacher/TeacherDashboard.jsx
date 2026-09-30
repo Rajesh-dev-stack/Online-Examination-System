@@ -8,7 +8,7 @@ const TeacherDashboard = () => {
     total: 0, active: 0, upcoming: 0, completed: 0, assignments: 0
   });
   const [loading, setLoading] = useState(true);
-  const user = JSON.parse(localStorage.getItem('user'));
+  const user = JSON.parse(sessionStorage.getItem('user'));
 
   useEffect(() => {
     const fetchStats = async () => {

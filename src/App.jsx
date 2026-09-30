@@ -39,7 +39,7 @@ function App() {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (!user) {
         // If Firebase says we are logged out (session expired or manual logout), clear local storage
-        localStorage.removeItem('user');
+        sessionStorage.removeItem('user');
       }
     });
     return () => unsubscribe();

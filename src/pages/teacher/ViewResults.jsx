@@ -12,7 +12,7 @@ const ViewResults = () => {
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(true);
   const [resultsLoading, setResultsLoading] = useState(false);
-  const user = JSON.parse(localStorage.getItem('user'));
+  const user = JSON.parse(sessionStorage.getItem('user'));
 
   useEffect(() => {
     const fetchExams = async () => {

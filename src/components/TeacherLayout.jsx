@@ -3,7 +3,7 @@ import Sidebar from './Sidebar';
 import Navbar from './Navbar';
 
 const TeacherLayout = () => {
-  const user = JSON.parse(localStorage.getItem('user'));
+  const user = JSON.parse(sessionStorage.getItem('user'));
 
   if (!user || user.role !== 'teacher') {
     return <Navigate to="/teacher-login" />;

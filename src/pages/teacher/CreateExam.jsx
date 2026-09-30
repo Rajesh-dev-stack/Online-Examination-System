@@ -7,7 +7,7 @@ import toast from 'react-hot-toast';
 
 const CreateExam = () => {
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem('user'));
+  const user = JSON.parse(sessionStorage.getItem('user'));
   
   const [step, setStep] = useState(1);
   const [examId, setExamId] = useState(null);

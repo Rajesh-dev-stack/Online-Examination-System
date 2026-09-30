@@ -11,7 +11,7 @@ const ViewSubmissions = () => {
   const [selectedId, setSelectedId] = useState(preselectedId || '');
   const [submissions, setSubmissions] = useState([]);
   const [loading, setLoading] = useState(true);
-  const user = JSON.parse(localStorage.getItem('user'));
+  const user = JSON.parse(sessionStorage.getItem('user'));
 
   // Grading State
   const [gradeData, setGradeData] = useState({}); // { subId: { marks, feedback } }

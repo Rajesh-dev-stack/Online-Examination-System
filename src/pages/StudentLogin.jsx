@@ -1,12 +1,21 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { loginUser, registerUser } from '../firebase/authFunctions';
 import toast from 'react-hot-toast';
+import { Eye, EyeOff } from 'lucide-react';
 
 const StudentLogin = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    if (user && user.role === 'student') {
+      navigate('/student/dashboard', { replace: true });
+    }
+  }, [navigate]);
 
   const [formData, setFormData] = useState({
     email: '',
@@ -35,8 +44,8 @@ const StudentLogin = () => {
           toast.error('Invalid role. Please login from correct portal.');
         } else {
           toast.success('Logged in successfully!');
-          localStorage.setItem('user', JSON.stringify({ uid: user.uid, ...userData }));
-          navigate('/student/dashboard');
+          sessionStorage.setItem('user', JSON.stringify({ uid: user.uid, ...userData }));
+          navigate('/student/dashboard', { replace: true });
         }
       }
     } else {
@@ -53,8 +62,8 @@ const StudentLogin = () => {
         toast.error(error);
       } else {
         toast.success('Registered successfully!');
-        localStorage.setItem('user', JSON.stringify({ uid: user.uid, ...userDataToSave, email: formData.email }));
-        navigate('/student/dashboard');
+        sessionStorage.setItem('user', JSON.stringify({ uid: user.uid, ...userDataToSave, email: formData.email }));
+        navigate('/student/dashboard', { replace: true });
       }
     }
     setLoading(false);
@@ -111,7 +120,32 @@ const StudentLogin = () => {
           
           <div className="form-group">
             <label>Password</label>
-            <input type="password" name="password" className="form-control" required onChange={handleChange} />
+            <div style={{ position: 'relative' }}>
+              <input 
+                type={showPassword ? "text" : "password"} 
+                name="password" 
+                className="form-control" 
+                required 
+                onChange={handleChange} 
+                style={{ paddingRight: '40px' }}
+              />
+              <button 
+                type="button" 
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: 'absolute',
+                  right: '10px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  color: '#6b7280',
+                  cursor: 'pointer'
+                }}
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
           </div>
 
           <button type="submit" className="btn btn-primary" style={{ width: '100%' }} disabled={loading}>

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { getStudentResults, getAvailableExamsForStudents, getStudentAssignments, getStudentSubmissions } from '../../firebase/dbFunctions';
 
 const StudentDashboard = () => {
-  const user = JSON.parse(localStorage.getItem('user'));
+  const user = JSON.parse(sessionStorage.getItem('user'));
   const [stats, setStats] = useState({
     totalAppeared: 0, passed: 0, average: 0, assignments: 0
   });

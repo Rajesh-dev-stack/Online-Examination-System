@@ -1,5 +1,5 @@
 const TeacherProfile = () => {
-  const user = JSON.parse(localStorage.getItem('user'));
+  const user = JSON.parse(sessionStorage.getItem('user'));
 
   return (
     <div style={{ maxWidth: '600px', margin: '0 auto' }}>

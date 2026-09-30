@@ -5,10 +5,10 @@ const Landing = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem('user'));
+    const user = JSON.parse(sessionStorage.getItem('user'));
     if (user) {
-      if (user.role === 'teacher') navigate('/teacher/dashboard');
-      if (user.role === 'student') navigate('/student/dashboard');
+      if (user.role === 'teacher') navigate('/teacher/dashboard', { replace: true });
+      if (user.role === 'student') navigate('/student/dashboard', { replace: true });
     }
   }, [navigate]);
 

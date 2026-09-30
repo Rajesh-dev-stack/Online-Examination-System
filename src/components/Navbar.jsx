@@ -4,12 +4,12 @@ import { logoutUser } from '../firebase/authFunctions';
 
 const Navbar = ({ role }) => {
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem('user'));
+  const user = JSON.parse(sessionStorage.getItem('user'));
 
   const handleLogout = async () => {
     await logoutUser();
-    localStorage.removeItem('user');
-    navigate('/');
+    sessionStorage.removeItem('user');
+    navigate('/', { replace: true });
   };
 
   return (

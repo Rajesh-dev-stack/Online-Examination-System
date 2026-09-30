@@ -5,7 +5,7 @@ import { submitAssignment } from '../../firebase/dbFunctions';
 import toast from 'react-hot-toast';
 
 const Assignments = () => {
-  const user = JSON.parse(localStorage.getItem('user'));
+  const user = JSON.parse(sessionStorage.getItem('user'));
   const [assignments, setAssignments] = useState([]);
   const [submissions, setSubmissions] = useState([]);
   const [loading, setLoading] = useState(true);

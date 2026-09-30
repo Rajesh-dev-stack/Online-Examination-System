@@ -7,7 +7,7 @@ import toast from 'react-hot-toast';
 
 const CreateAssignment = () => {
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem('user'));
+  const user = JSON.parse(sessionStorage.getItem('user'));
   
   const [step, setStep] = useState(1);
   const [assignmentDetails, setAssignmentDetails] = useState({

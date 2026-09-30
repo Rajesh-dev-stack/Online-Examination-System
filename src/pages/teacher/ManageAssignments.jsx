@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 const ManageAssignments = () => {
   const [assignments, setAssignments] = useState([]);
   const [loading, setLoading] = useState(true);
-  const user = JSON.parse(localStorage.getItem('user'));
+  const user = JSON.parse(sessionStorage.getItem('user'));
 
   const fetchAssignments = async () => {
     setLoading(true);

@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 const ExamPage = () => {
   const { examId } = useParams();
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem('user'));
+  const user = JSON.parse(sessionStorage.getItem('user'));
   
   const [exam, setExam] = useState(null);
   const [questions, setQuestions] = useState([]);
