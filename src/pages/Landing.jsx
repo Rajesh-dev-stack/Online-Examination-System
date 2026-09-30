@@ -1,17 +1,12 @@
-import { useEffect } from 'react';
-import { Link, useNavigate, useNavigationType } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 
 const Landing = () => {
-  const navigate = useNavigate();
-  const navType = useNavigationType();
-
-  useEffect(() => {
-    const user = JSON.parse(sessionStorage.getItem('user'));
-    if (user && navType !== 'POP') {
-      if (user.role === 'teacher') navigate('/teacher/dashboard', { replace: true });
-      if (user.role === 'student') navigate('/student/dashboard', { replace: true });
-    }
-  }, [navigate, navType]);
+  const user = JSON.parse(sessionStorage.getItem('user'));
+  
+  if (user) {
+    if (user.role === 'teacher') return <Navigate to="/teacher/dashboard" replace />;
+    if (user.role === 'student') return <Navigate to="/student/dashboard" replace />;
+  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
