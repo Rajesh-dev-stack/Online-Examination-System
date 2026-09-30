@@ -19,15 +19,15 @@ const Landing = () => {
       {/* Main Content */}
       <main style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '20px' }}>
         <div className="card" style={{ maxWidth: '600px', width: '100%', textAlign: 'center' }}>
-          <h3 className="mb-4">Welcome</h3>
+          <h2 className="mb-4">Welcome</h2>
           <p className="mb-4 text-muted">Please select your role to continue.</p>
           
           <div className="grid grid-cols-2 gap-3">
             <Link to="/student-login" replace className="btn btn-primary" style={{ padding: '20px', fontSize: '1.2rem' }}>
-              Login as Student
+              Student Login
             </Link>
             <Link to="/teacher-login" replace className="btn btn-success" style={{ padding: '20px', fontSize: '1.2rem' }}>
-              Login as Teacher
+              Teacher Login
             </Link>
           </div>
         </div>
