@@ -1,18 +1,29 @@
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { storage } from './firebaseClient';
+// Storage replaced by Cloudinary
 
 /**
- * Upload an assignment submission file to Firebase Storage
+ * Upload an assignment submission file to Cloudinary
+ * (Bypasses Firebase Storage to fix hanging upload bugs)
  */
 export const uploadSubmissionFile = async (assignmentId, studentId, file) => {
   try {
-    const fileName = `${Date.now()}_${file.name}`;
-    const storageRef = ref(storage, `submissions/${assignmentId}/${studentId}/${fileName}`);
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', 'Assignments');
+    formData.append('cloud_name', 'nczyrdpi');
     
-    const snapshot = await uploadBytes(storageRef, file);
-    const downloadURL = await getDownloadURL(snapshot.ref);
+    // Use /auto/upload to let Cloudinary auto-detect if it's an image, PDF, etc.
+    const response = await fetch('https://api.cloudinary.com/v1_1/nczyrdpi/auto/upload', {
+      method: 'POST',
+      body: formData
+    });
+
+    const data = await response.json();
     
-    return { url: downloadURL, error: null };
+    if (data.secure_url) {
+      return { url: data.secure_url, error: null };
+    } else {
+      return { url: null, error: data.error?.message || 'Failed to upload to Cloudinary' };
+    }
   } catch (error) {
     return { url: null, error: error.message };
   }
