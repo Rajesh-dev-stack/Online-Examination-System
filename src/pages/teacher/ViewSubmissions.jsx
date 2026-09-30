@@ -126,7 +126,7 @@ const ViewSubmissions = () => {
                 
                 <div className="mb-3">
                   <a href={sub.fileURL} target="_blank" rel="noreferrer" className="btn btn-secondary" style={{ backgroundColor: '#4b5563', color: 'white', textDecoration: 'none' }}>
-                    View Uploaded File ({sub.fileType})
+                    View Uploaded File
                   </a>
                 </div>
 
