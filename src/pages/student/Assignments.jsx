@@ -67,7 +67,8 @@ const Assignments = () => {
       fileType: file.type,
       status: 'submitted',
       marks: null,
-      feedback: ''
+      feedback: '',
+      submittedAt: new Date().toISOString()
     };
     
     const { error: dbError } = await submitAssignment(submissionData, existingId);
@@ -164,7 +165,7 @@ const Assignments = () => {
               if (sub && sub.status !== 'resubmit') {
                 return (
                   <div style={{ backgroundColor: '#dcfce7', padding: '15px', borderRadius: '6px' }}>
-                    <h4 style={{ color: '#166534' }}>Already Submitted on {new Date(sub.submittedAt).toLocaleDateString()}</h4>
+                    <h4 style={{ color: '#166534' }}>Already Submitted on {sub.submittedAt ? new Date(sub.submittedAt).toLocaleDateString() : 'Just now'}</h4>
                     <p><strong>File:</strong> <a href={sub.fileURL} target="_blank" rel="noreferrer">{sub.fileName}</a></p>
                     {sub.status === 'graded' && (
                       <div className="mt-2">
