@@ -7,6 +7,7 @@ const Navbar = ({ role }) => {
   const user = JSON.parse(sessionStorage.getItem('user'));
 
   const handleLogout = async () => {
+    if (!window.confirm("Are you sure you want to log out?")) return;
     await logoutUser();
     sessionStorage.removeItem('user');
     navigate('/', { replace: true });
