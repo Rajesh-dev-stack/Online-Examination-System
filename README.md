@@ -66,7 +66,6 @@ Online-Examination-System/
 │   ├── App.jsx             # Route definitions & global session state
 │   ├── main.jsx            # React root mount
 │   └── index.css           # Global application styles
-├── .env.example            # Sample environment variables
 ├── package.json            # Dependencies and npm scripts
 ├── vite.config.js          # Vite configuration
 └── README.md               # Project documentation
