@@ -19,6 +19,7 @@ const ExamPage = () => {
   const [timeLeft, setTimeLeft] = useState(null);
   const [warnings, setWarnings] = useState(0);
   const [submitting, setSubmitting] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
   
   const timerRef = useRef(null);
   const isActionRef = useRef(false);
@@ -96,100 +97,112 @@ const ExamPage = () => {
   // Handle warnings trigger
   useEffect(() => {
     if (warnings === 1) {
-      alert("FIRST WARNING: Do not switch tabs or leave this window! Your exam will be auto-submitted if you continue cheating.");
+      toast.error("FIRST WARNING: Do not switch tabs or leave this window! 2 warnings remaining.", { id: 'exam-warn', duration: 4000 });
     } else if (warnings === 2) {
-      alert("FINAL WARNING: If you switch tabs or leave this window one more time, your exam will be automatically submitted!");
+      toast.error("FINAL WARNING: If you switch tabs again, your exam will be automatically submitted!", { id: 'exam-warn', duration: 5000 });
     } else if (warnings >= 3) {
-      alert("Maximum warnings exceeded! Your exam will now be automatically submitted.");
+      toast.error("Maximum warnings exceeded! Submitting exam...", { id: 'exam-warn', duration: 4000 });
       handleSubmit(true, 'cheating');
     }
   }, [warnings]);
 
   const handleSubmit = async (isAuto = false, reason = 'time') => {
     if (submitting) return;
-    
-    if (!isAuto) {
-      isActionRef.current = true; // Pause blur detection
-      const confirmed = window.confirm("Are you sure you want to submit the exam?");
-      isActionRef.current = false; // Resume if they cancel
-      if (!confirmed) return;
-    } else {
+
+    setShowConfirmModal(false);
+    isActionRef.current = true; // Permanently pause blur detection during and after submit
+    setSubmitting(true);
+
+    if (isAuto) {
       if (reason === 'cheating') {
         toast.error("Exam auto-submitted due to tab switching/cheating.");
       } else {
         toast("Time Up! Exam Submitted.");
       }
     }
-    
-    isActionRef.current = true; // Permanently pause blur detection while submitting
-    setSubmitting(true);
+
     if (timerRef.current) clearInterval(timerRef.current);
-    
-    let obtainedMarks = 0;
-    let correctAnswersCount = 0;
-    let wrongAnswersCount = 0;
-    let totalMarks = 0;
-    
-    questions.forEach(q => {
-      totalMarks += q.marks;
-      if (answers[q.id]) {
-        const studentAns = answers[q.id].toString().trim().toUpperCase();
-        const correctAns = q.correctAnswer.toString().trim().toUpperCase();
-        
-        if (studentAns === correctAns) {
-          obtainedMarks += q.marks;
-          correctAnswersCount++;
-        } else {
-          wrongAnswersCount++;
+
+    try {
+      let obtainedMarks = 0;
+      let correctAnswersCount = 0;
+      let wrongAnswersCount = 0;
+      let totalMarks = 0;
+
+      questions.forEach(q => {
+        const qMarks = Number(q.marks) || 1;
+        totalMarks += qMarks;
+        if (answers && answers[q.id] !== undefined && answers[q.id] !== null) {
+          const studentAns = String(answers[q.id]).trim().toUpperCase();
+          const correctAns = q.correctAnswer ? String(q.correctAnswer).trim().toUpperCase() : '';
+
+          if (correctAns && studentAns === correctAns) {
+            obtainedMarks += qMarks;
+            correctAnswersCount++;
+          } else {
+            wrongAnswersCount++;
+          }
         }
+      });
+
+      const finalTotalMarks = Number(totalMarks) || 0;
+      const finalObtainedMarks = Number(obtainedMarks) || 0;
+      const percentageVal = finalTotalMarks > 0 
+        ? Number(((finalObtainedMarks / finalTotalMarks) * 100).toFixed(2)) 
+        : 0;
+
+      // Passing threshold calculation
+      let isPass = false;
+      const passingMarksNum = Number(exam?.passingMarks) || 0;
+      if (passingMarksNum > finalTotalMarks && finalTotalMarks > 0) {
+        isPass = percentageVal >= passingMarksNum;
+      } else {
+        isPass = finalObtainedMarks >= passingMarksNum;
       }
-    });
-    
-    const percentage = totalMarks > 0 ? ((obtainedMarks / totalMarks) * 100).toFixed(2) : 0;
-    
-    // Fallback: If teacher entered 50 as passing marks but the exam only has 5 total marks, they meant 50%.
-    let isPass = false;
-    if (exam.passingMarks > totalMarks && totalMarks > 0) {
-      isPass = parseFloat(percentage) >= exam.passingMarks;
-    } else {
-      isPass = obtainedMarks >= exam.passingMarks;
-    }
-    
-    // Time taken calculation
-    const durationSecs = exam.duration * 60;
-    const timeTakenSecs = durationSecs - timeLeft;
-    const minsTaken = Math.floor(timeTakenSecs / 60);
-    const secsTaken = timeTakenSecs % 60;
-    const timeTakenStr = `${minsTaken}m ${secsTaken}s`;
 
-    const resultData = {
-      examId,
-      examTitle: exam.title,
-      subject: exam.subject,
-      studentId: user.uid,
-      studentName: user.name,
-      rollNumber: user.rollNumber,
-      totalQuestions: questions.length,
-      attemptedQuestions: Object.keys(answers).length,
-      correctAnswers: correctAnswersCount,
-      wrongAnswers: wrongAnswersCount,
-      totalMarks,
-      obtainedMarks,
-      percentage: parseFloat(percentage),
-      status: isPass ? 'pass' : 'fail',
-      timeTaken: timeTakenStr,
-      warningsCount: warnings,
-      studentAnswers: answers // Store their answers for review later
-    };
+      // Time taken calculation
+      const durationSecs = (Number(exam?.duration) || 0) * 60;
+      const currentRemaining = typeof timeLeft === 'number' ? timeLeft : 0;
+      const timeTakenSecs = Math.max(0, durationSecs - currentRemaining);
+      const minsTaken = Math.floor(timeTakenSecs / 60);
+      const secsTaken = timeTakenSecs % 60;
+      const timeTakenStr = `${minsTaken}m ${secsTaken}s`;
 
-    const { id, error } = await submitResult(resultData);
-    
-    if (error) {
-      toast.error("Failed to submit result");
+      const resultData = {
+        examId: examId || '',
+        examTitle: exam?.title || 'Exam',
+        subject: exam?.subject || '',
+        studentId: user?.uid || '',
+        studentName: user?.name || user?.fullName || 'Student',
+        rollNumber: user?.rollNumber || '',
+        totalQuestions: questions.length,
+        attemptedQuestions: Object.keys(answers || {}).length,
+        correctAnswers: correctAnswersCount,
+        wrongAnswers: wrongAnswersCount,
+        totalMarks: finalTotalMarks,
+        obtainedMarks: finalObtainedMarks,
+        percentage: percentageVal,
+        status: isPass ? 'pass' : 'fail',
+        timeTaken: timeTakenStr,
+        warningsCount: Number(warnings) || 0,
+        studentAnswers: answers || {}
+      };
+
+      const { id, error } = await submitResult(resultData);
+
+      if (error) {
+        toast.error(`Failed to submit: ${error}`);
+        setSubmitting(false);
+        isActionRef.current = false;
+      } else {
+        localStorage.removeItem(`exam_${examId}_endTime`);
+        navigate(`/student/result/${id}`, { replace: true });
+      }
+    } catch (err) {
+      console.error("Exam submit error:", err);
+      toast.error(`Unexpected error: ${err.message || 'Submission failed'}`);
       setSubmitting(false);
-    } else {
-      localStorage.removeItem(`exam_${examId}_endTime`);
-      navigate(`/student/result/${id}`, { replace: true });
+      isActionRef.current = false;
     }
   };
 
@@ -223,7 +236,7 @@ const ExamPage = () => {
           <div style={{ backgroundColor: 'rgba(255,255,255,0.2)', padding: '5px 15px', borderRadius: '20px', fontWeight: 'bold' }}>
             Time Left: {formatTime(timeLeft)}
           </div>
-          <button className="btn btn-danger" onClick={() => handleSubmit(false)} disabled={submitting}>
+          <button className="btn btn-danger" onClick={() => setShowConfirmModal(true)} disabled={submitting}>
             {submitting ? 'Submitting...' : 'Submit Exam'}
           </button>
         </div>
@@ -392,6 +405,42 @@ const ExamPage = () => {
         </div>
         
       </div>
+      {/* Submit Confirmation Modal */}
+      {showConfirmModal && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.5)',
+          display: 'flex', justifyContent: 'center', alignItems: 'center',
+          zIndex: 9999
+        }}>
+          <div className="card" style={{ width: '420px', textAlign: 'center', padding: '30px' }}>
+            <h3 style={{ marginTop: 0, marginBottom: '10px', color: 'var(--text-dark)' }}>Submit Exam?</h3>
+            <p style={{ color: 'var(--text-muted)', marginBottom: '15px' }}>
+              You have answered <strong>{Object.keys(answers).length}</strong> of <strong>{questions.length}</strong> questions.
+            </p>
+            <p style={{ color: '#b45309', backgroundColor: '#fef3c7', padding: '10px', borderRadius: '6px', fontSize: '0.85rem', marginBottom: '25px' }}>
+              Once submitted, you cannot change your answers or re-attempt this exam.
+            </p>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '15px' }}>
+              <button 
+                className="btn btn-secondary" 
+                onClick={() => setShowConfirmModal(false)}
+                style={{ backgroundColor: '#e5e7eb', color: '#374151' }}
+                disabled={submitting}
+              >
+                Keep Answering
+              </button>
+              <button 
+                className="btn btn-danger" 
+                onClick={() => handleSubmit(false)}
+                disabled={submitting}
+              >
+                {submitting ? 'Submitting...' : 'Yes, Submit Exam'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
