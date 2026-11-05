@@ -5,12 +5,6 @@ import toast from 'react-hot-toast';
 import { Eye, EyeOff } from 'lucide-react';
 
 const StudentLogin = () => {
-  const user = JSON.parse(sessionStorage.getItem('user'));
-  if (user) {
-    if (user.role === 'teacher') return <Navigate to="/teacher/dashboard" replace />;
-    if (user.role === 'student') return <Navigate to="/student/dashboard" replace />;
-  }
-
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -25,6 +19,12 @@ const StudentLogin = () => {
     semester: '',
     section: ''
   });
+
+  const user = JSON.parse(sessionStorage.getItem('user'));
+  if (user) {
+    if (user.role === 'teacher') return <Navigate to="/teacher/dashboard" replace />;
+    if (user.role === 'student') return <Navigate to="/student/dashboard" replace />;
+  }
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });

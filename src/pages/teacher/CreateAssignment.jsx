@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createAssignment } from '../../firebase/dbFunctions';
 import { generateQuestions } from '../../utils/AIhelper';
-import { parseExcelQuestions, downloadExcelTemplate } from '../../utils/excelHelper';
+// Excel helper omitted for assignments
 import toast from 'react-hot-toast';
 
 const CreateAssignment = () => {
@@ -72,7 +72,8 @@ const CreateAssignment = () => {
 
   const addSelectedAiToPool = () => {
     const selected = aiState.generatedQs.filter(q => q.selected).map(q => {
-      const { selected, ...rest } = q;
+      const rest = { ...q };
+      delete rest.selected;
       return rest;
     });
     setQuestions([...questions, ...selected]);

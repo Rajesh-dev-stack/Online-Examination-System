@@ -18,7 +18,7 @@ export const normalizeCorrectAnswer = (q) => {
   }
 
   // 2. Starts with 'OPTION A', 'OPTIONA', 'A)', 'A.', 'A -'
-  const letterMatch = upper.match(/^(?:OPTION\s*)?([A-D])[\s.):\-]/) || upper.match(/^(?:OPTION\s*)([A-D])$/);
+  const letterMatch = upper.match(/^(?:OPTION\s*)?([A-D])[\s.):-]/) || upper.match(/^(?:OPTION\s*)([A-D])$/);
   if (letterMatch && letterMatch[1]) {
     return letterMatch[1];
   }

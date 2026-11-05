@@ -27,7 +27,7 @@ const AvailableExams = () => {
       setLoading(false);
     };
     fetchExams();
-  }, [user.uid]);
+  }, [user.uid, user.course, user.section]);
 
   const handleStart = (examId) => {
     if (window.confirm("Are you sure you want to start this exam? The timer will begin immediately.")) {

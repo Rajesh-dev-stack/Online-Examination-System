@@ -28,7 +28,7 @@ const Assignments = () => {
       setLoading(false);
     };
     fetchData();
-  }, [user.uid]);
+  }, [user.uid, user.course, user.section]);
 
   const handleFileChange = (e) => {
     const selected = e.target.files[0];

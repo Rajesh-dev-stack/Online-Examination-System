@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom';
 import { 
   Home, FileText, ClipboardList, BarChart2, User, 
-  BookOpen, Calendar, Archive 
+  BookOpen, Archive 
 } from 'lucide-react';
 
 const Sidebar = ({ role }) => {

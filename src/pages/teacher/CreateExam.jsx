@@ -84,7 +84,7 @@ const CreateExam = () => {
       const customMarks = parseInt(aiState.marks) || 1;
       setAiState({ ...aiState, generatedQs: generated.map(q => ({ ...q, selected: true, marks: customMarks })) });
       toast.success('Questions generated!');
-    } catch (err) {
+    } catch (_err) {
       toast.error(`AI Error: ${err.message}`);
     }
     setLoading(false);
@@ -92,7 +92,8 @@ const CreateExam = () => {
 
   const addSelectedAiToPool = () => {
     const selected = aiState.generatedQs.filter(q => q.selected).map(q => {
-      const { selected, ...rest } = q;
+      const rest = { ...q };
+      delete rest.selected;
       return {
         ...rest,
         correctAnswer: normalizeCorrectAnswer(rest)
@@ -113,7 +114,7 @@ const CreateExam = () => {
       const parsedWithMarks = parsedQs.map(q => ({ ...q, marks: customMarks, correctAnswer: normalizeCorrectAnswer(q) }));
       setQuestions([...questions, ...parsedWithMarks]);
       toast.success(`${parsedWithMarks.length} questions added from Excel`);
-    } catch (err) {
+    } catch {
       toast.error('Failed to parse Excel file');
     }
     e.target.value = ''; // Reset

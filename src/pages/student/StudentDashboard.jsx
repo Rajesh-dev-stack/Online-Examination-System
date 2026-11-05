@@ -42,7 +42,7 @@ const StudentDashboard = () => {
       setLoading(false);
     };
     fetchData();
-  }, [user.uid]);
+  }, [user.uid, user.course, user.section]);
 
   if (loading) return <div>Loading dashboard...</div>;
 

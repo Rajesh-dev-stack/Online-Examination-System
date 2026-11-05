@@ -14,6 +14,17 @@ const ViewResults = () => {
   const [resultsLoading, setResultsLoading] = useState(false);
   const user = JSON.parse(sessionStorage.getItem('user'));
 
+  const fetchResults = async (examId) => {
+    setResultsLoading(true);
+    const { results: fetchedResults, error } = await getResultsForExam(examId);
+    if (error) {
+      toast.error('Failed to fetch results');
+    } else {
+      setResults(fetchedResults);
+    }
+    setResultsLoading(false);
+  };
+
   useEffect(() => {
     const fetchExams = async () => {
       const { exams: fetchedExams, error } = await getTeacherExams(user.uid);
@@ -29,18 +40,7 @@ const ViewResults = () => {
       setLoading(false);
     };
     fetchExams();
-  }, [user.uid]);
-
-  const fetchResults = async (examId) => {
-    setResultsLoading(true);
-    const { results: fetchedResults, error } = await getResultsForExam(examId);
-    if (error) {
-      toast.error('Failed to fetch results');
-    } else {
-      setResults(fetchedResults);
-    }
-    setResultsLoading(false);
-  };
+  }, [user.uid, preselectedExamId]);
 
   const handleExamChange = (e) => {
     const eid = e.target.value;
@@ -76,9 +76,7 @@ const ViewResults = () => {
 
   // Compute Class Summary
   const passed = results.filter(r => r.status === 'pass').length;
-  const failed = results.filter(r => r.status === 'fail').length;
   const highest = results.length > 0 ? Math.max(...results.map(r => r.obtainedMarks)) : 0;
-  const lowest = results.length > 0 ? Math.min(...results.map(r => r.obtainedMarks)) : 0;
   const average = results.length > 0 ? (results.reduce((acc, r) => acc + r.obtainedMarks, 0) / results.length).toFixed(2) : 0;
 
   if (loading) return <div>Loading...</div>;

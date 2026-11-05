@@ -16,6 +16,18 @@ const ViewSubmissions = () => {
   // Grading State
   const [gradeData, setGradeData] = useState({}); // { subId: { marks, feedback } }
 
+  const fetchSubmissions = async (assignmentId) => {
+    const { submissions: fetched } = await getAssignmentSubmissions(assignmentId);
+    setSubmissions(fetched);
+    
+    // Initialize grade data state
+    const initialGrades = {};
+    fetched.forEach(sub => {
+      initialGrades[sub.id] = { marks: sub.marks || '', feedback: sub.feedback || '' };
+    });
+    setGradeData(initialGrades);
+  };
+
   useEffect(() => {
     const fetchAssignments = async () => {
       const { assignments: fetched, error } = await getTeacherAssignments(user.uid);
@@ -31,19 +43,7 @@ const ViewSubmissions = () => {
       setLoading(false);
     };
     fetchAssignments();
-  }, [user.uid]);
-
-  const fetchSubmissions = async (assignmentId) => {
-    const { submissions: fetched } = await getAssignmentSubmissions(assignmentId);
-    setSubmissions(fetched);
-    
-    // Initialize grade data state
-    const initialGrades = {};
-    fetched.forEach(sub => {
-      initialGrades[sub.id] = { marks: sub.marks || '', feedback: sub.feedback || '' };
-    });
-    setGradeData(initialGrades);
-  };
+  }, [user.uid, preselectedId]);
 
   const handleAssignmentChange = (e) => {
     setSelectedId(e.target.value);

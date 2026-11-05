@@ -207,10 +207,6 @@ const ExamPage = () => {
     }
   };
 
-  const handleAutoSubmit = () => {
-    handleSubmit(true);
-  };
-
   const formatTime = (seconds) => {
     if (seconds === null) return "--:--";
     const m = Math.floor(seconds / 60).toString().padStart(2, '0');
