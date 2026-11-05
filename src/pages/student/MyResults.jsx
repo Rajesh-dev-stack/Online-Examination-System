@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getStudentResults, getQuestionsForExam } from '../../firebase/dbFunctions';
+import { normalizeCorrectAnswer, normalizeStudentAnswer } from '../../utils/normalizeAnswer';
 import toast from 'react-hot-toast';
 
 const MyResults = () => {
@@ -38,6 +39,23 @@ const MyResults = () => {
   };
 
   if (loading) return <div>Loading results...</div>;
+
+  // Real-time recalculation of score in case legacy results had matching bugs
+  const computedObtained = examQuestions.length > 0 
+    ? examQuestions.reduce((sum, q) => {
+        const correctL = normalizeCorrectAnswer(q);
+        const studentL = normalizeStudentAnswer(selectedResult?.studentAnswers?.[q.id], q);
+        return (correctL && studentL && correctL === studentL) ? sum + (Number(q.marks) || 1) : sum;
+      }, 0)
+    : (selectedResult?.obtainedMarks ?? 0);
+
+  const computedTotal = examQuestions.length > 0 
+    ? examQuestions.reduce((sum, q) => sum + (Number(q.marks) || 1), 0)
+    : (selectedResult?.totalMarks ?? 0);
+
+  const displayScore = computedTotal > 0 ? computedObtained : selectedResult?.obtainedMarks;
+  const displayTotal = computedTotal > 0 ? computedTotal : selectedResult?.totalMarks;
+  const displayPercentage = displayTotal > 0 ? ((displayScore / displayTotal) * 100).toFixed(2) : selectedResult?.percentage;
 
   return (
     <div>
@@ -98,8 +116,8 @@ const MyResults = () => {
           <div className="card mb-4">
             <h3 className="mb-3">{selectedResult.examTitle} - Performance Summary</h3>
             <div className="grid grid-cols-4 gap-3">
-              <div><strong>Score:</strong> {selectedResult.obtainedMarks} / {selectedResult.totalMarks}</div>
-              <div><strong>Percentage:</strong> {selectedResult.percentage}%</div>
+              <div><strong>Score:</strong> {displayScore} / {displayTotal}</div>
+              <div><strong>Percentage:</strong> {displayPercentage}%</div>
               <div><strong>Status:</strong> <span className={`badge ${selectedResult.status === 'pass' ? 'badge-active' : 'badge-completed'}`}>{selectedResult.status}</span></div>
               <div><strong>Time Taken:</strong> {selectedResult.timeTaken}</div>
             </div>
@@ -111,35 +129,97 @@ const MyResults = () => {
           ) : (
             <div className="d-flex flex-column gap-3" style={{ flexDirection: 'column' }}>
               {examQuestions.map((q, idx) => {
-                const studentAnswer = selectedResult.studentAnswers?.[q.id];
-                const isCorrect = studentAnswer === q.correctAnswer;
-                const isAttempted = !!studentAnswer;
+                const correctLetter = normalizeCorrectAnswer(q);
+                const studentLetter = normalizeStudentAnswer(selectedResult.studentAnswers?.[q.id], q);
+                const isAttempted = !!studentLetter;
+                const isCorrect = isAttempted && studentLetter === correctLetter;
                 
                 return (
-                  <div key={q.id} className="card" style={{ borderLeft: `5px solid ${isCorrect ? 'var(--success)' : (isAttempted ? 'var(--danger)' : '#9ca3af')}` }}>
-                    <p><strong>Q{idx + 1}:</strong> {q.questionText} <span style={{ float: 'right', fontSize: '0.9rem' }} className="text-muted">[{q.marks} Marks]</span></p>
+                  <div 
+                    key={q.id} 
+                    className="card" 
+                    style={{ 
+                      borderLeft: `6px solid ${isCorrect ? 'var(--success)' : (isAttempted ? 'var(--danger)' : '#9ca3af')}`,
+                      marginBottom: '16px' 
+                    }}
+                  >
+                    <div className="d-flex justify-between align-center mb-2">
+                      <p style={{ margin: 0, fontSize: '1.05rem' }}>
+                        <strong>Q{idx + 1}:</strong> {q.questionText}
+                      </p>
+                      <span className="badge badge-active" style={{ fontSize: '0.85rem' }}>
+                        {q.marks} Marks
+                      </span>
+                    </div>
                     
                     <div className="grid grid-cols-2 gap-2 mt-3 mb-3">
-                      {['A', 'B', 'C', 'D'].map(opt => (
-                        <div key={opt} style={{ 
-                          padding: '8px', 
-                          borderRadius: '4px',
-                          backgroundColor: q.correctAnswer === opt ? '#dcfce7' : (studentAnswer === opt ? '#fee2e2' : 'transparent'),
-                          border: '1px solid #e5e7eb'
-                        }}>
-                          {opt}) {q[`option${opt}`]}
-                          {q.correctAnswer === opt && <span style={{ float: 'right', fontWeight: 'bold', color: '#166534' }}>(Correct)</span>}
-                          {studentAnswer === opt && q.correctAnswer !== opt && <span style={{ float: 'right', fontWeight: 'bold', color: '#991b1b' }}>(Your Answer)</span>}
-                        </div>
-                      ))}
+                      {['A', 'B', 'C', 'D'].map(opt => {
+                        const isThisCorrect = correctLetter === opt;
+                        const isThisStudent = studentLetter === opt;
+                        
+                        let bgColor = 'white';
+                        let borderColor = '#e5e7eb';
+                        let badge = null;
+                        
+                        if (isThisCorrect && isThisStudent) {
+                          bgColor = '#dcfce7'; // green
+                          borderColor = '#16a34a';
+                          badge = <span style={{ float: 'right', fontWeight: 'bold', color: '#166534' }}>(Your Answer - Correct ✓)</span>;
+                        } else if (isThisCorrect) {
+                          bgColor = '#dcfce7'; // green
+                          borderColor = '#16a34a';
+                          badge = <span style={{ float: 'right', fontWeight: 'bold', color: '#166534' }}>(Correct Answer ✓)</span>;
+                        } else if (isThisStudent) {
+                          bgColor = '#fee2e2'; // red
+                          borderColor = '#dc2626';
+                          badge = <span style={{ float: 'right', fontWeight: 'bold', color: '#991b1b' }}>(Your Answer - Incorrect ✗)</span>;
+                        }
+                        
+                        return (
+                          <div 
+                            key={opt} 
+                            style={{ 
+                              padding: '10px 14px', 
+                              borderRadius: '6px',
+                              backgroundColor: bgColor,
+                              border: `1.5px solid ${borderColor}`,
+                              fontSize: '0.95rem'
+                            }}
+                          >
+                            <strong>{opt})</strong> {q[`option${opt}`]}
+                            {badge}
+                          </div>
+                        );
+                      })}
                     </div>
 
-                    <div style={{ fontSize: '0.9rem' }}>
-                      {!isAttempted ? (
-                        <span className="text-muted">Not Attempted</span>
-                      ) : (
-                        <span>Your Answer: <strong>{studentAnswer}</strong></span>
-                      )}
+                    <div style={{ display: 'flex', gap: '20px', alignItems: 'center', fontSize: '0.9rem', paddingTop: '10px', borderTop: '1px solid #f3f4f6' }}>
+                      <div>
+                        <strong>Your Answer: </strong>
+                        {!isAttempted ? (
+                          <span className="text-muted">Not Attempted</span>
+                        ) : (
+                          <span style={{ color: isCorrect ? 'var(--success)' : 'var(--danger)', fontWeight: 'bold' }}>
+                            Option {studentLetter} ({q[`option${studentLetter}`] || studentLetter}) {isCorrect ? '✓' : '✗'}
+                          </span>
+                        )}
+                      </div>
+                      <div>
+                        <strong>Correct Answer: </strong>
+                        <span style={{ color: 'var(--success)', fontWeight: 'bold' }}>
+                          Option {correctLetter} ({q[`option${correctLetter}`] || correctLetter})
+                        </span>
+                      </div>
+                      <div style={{ marginLeft: 'auto' }}>
+                        <strong>Status: </strong>
+                        {isCorrect ? (
+                          <span className="badge" style={{ backgroundColor: '#dcfce7', color: '#166534' }}>Correct (+{q.marks} Marks)</span>
+                        ) : isAttempted ? (
+                          <span className="badge" style={{ backgroundColor: '#fee2e2', color: '#991b1b' }}>Incorrect (0 Marks)</span>
+                        ) : (
+                          <span className="badge" style={{ backgroundColor: '#f3f4f6', color: '#4b5563' }}>Unattempted (0 Marks)</span>
+                        )}
+                      </div>
                     </div>
                   </div>
                 );

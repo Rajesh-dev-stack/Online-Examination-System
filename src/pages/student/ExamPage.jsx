@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getExamById, getQuestionsForExam, submitResult } from '../../firebase/dbFunctions';
 import toast from 'react-hot-toast';
+import { normalizeCorrectAnswer, normalizeStudentAnswer } from '../../utils/normalizeAnswer';
 
 const ExamPage = () => {
   const { examId } = useParams();
@@ -133,8 +134,8 @@ const ExamPage = () => {
         const qMarks = Number(q.marks) || 1;
         totalMarks += qMarks;
         if (answers && answers[q.id] !== undefined && answers[q.id] !== null) {
-          const studentAns = String(answers[q.id]).trim().toUpperCase();
-          const correctAns = q.correctAnswer ? String(q.correctAnswer).trim().toUpperCase() : '';
+          const studentAns = normalizeStudentAnswer(answers[q.id], q);
+          const correctAns = normalizeCorrectAnswer(q);
 
           if (correctAns && studentAns === correctAns) {
             obtainedMarks += qMarks;

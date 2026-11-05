@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { createExam, addQuestionToExam } from '../../firebase/dbFunctions';
 import { generateQuestions } from '../../utils/AIhelper';
 import { parseExcelQuestions, downloadExcelTemplate } from '../../utils/excelHelper';
+import { normalizeCorrectAnswer } from '../../utils/normalizeAnswer';
 import toast from 'react-hot-toast';
 
 const CreateExam = () => {
@@ -92,7 +93,10 @@ const CreateExam = () => {
   const addSelectedAiToPool = () => {
     const selected = aiState.generatedQs.filter(q => q.selected).map(q => {
       const { selected, ...rest } = q;
-      return rest;
+      return {
+        ...rest,
+        correctAnswer: normalizeCorrectAnswer(rest)
+      };
     });
     setQuestions([...questions, ...selected]);
     setAiState({ ...aiState, generatedQs: [] });
@@ -106,7 +110,7 @@ const CreateExam = () => {
     try {
       const parsedQs = await parseExcelQuestions(file);
       const customMarks = parseInt(excelMarks) || 1;
-      const parsedWithMarks = parsedQs.map(q => ({ ...q, marks: customMarks }));
+      const parsedWithMarks = parsedQs.map(q => ({ ...q, marks: customMarks, correctAnswer: normalizeCorrectAnswer(q) }));
       setQuestions([...questions, ...parsedWithMarks]);
       toast.success(`${parsedWithMarks.length} questions added from Excel`);
     } catch (err) {
@@ -131,7 +135,7 @@ const CreateExam = () => {
     let totalMarks = 0;
     for (const q of questions) {
       totalMarks += q.marks;
-      await addQuestionToExam(examId, q);
+      await addQuestionToExam(examId, { ...q, correctAnswer: normalizeCorrectAnswer(q) });
     }
     
     toast.success('Exam Published Successfully!');
